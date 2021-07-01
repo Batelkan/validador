@@ -34,3 +34,39 @@ body {
 .layoutMainVerification > span{
   height: 100%;
 }
+
+.ant-form-item-label > label{
+  color:#4889D2;
+}
+
+.ant-input{
+  background-color: #505967;
+  border: 1px solid #49525F;
+  color: white;
+}
+
+.ant-divider-horizontal.ant-divider-with-text
+{
+  color: whitesmoke;
+  font-size: small;
+  border: #223146;
+}
+
+ .formValidador .ant-col-4 {
+   max-width: 100%;
+ }
+
+ .switchForm .ant-form-item-label > label {
+  font-size: "small"
+}
+
+.formValidador .ant-switch-small {
+  min-width: 44px;
+  height: 22px;
+}
+
+.formValidador  .ant-switch-small .ant-switch-handle
+{
+  width: 18px;
+  height: 18px;
+}

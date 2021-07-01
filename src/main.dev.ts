@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint global-require: off, no-console: off */
 
 /**
@@ -15,6 +16,10 @@ import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+
+const ipcmain = require('electron').ipcMain;
+const fs = require('fs');
+const CfdiToJson = require('cfdi-to-json');
 
 export default class AppUpdater {
   constructor() {
@@ -129,4 +134,15 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
+});
+
+ipcmain.on('loadXmlMainProcess', (event :any, data:[]) => {
+  const result = data.map((val:string) =>
+        {
+            return CfdiToJson.parse({ path: val });
+        });
+  if (mainWindow != null)
+  {
+    mainWindow.webContents.send('loadJsonCfdi', result);
+  }
 });
