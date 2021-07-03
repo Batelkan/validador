@@ -45,6 +45,20 @@ body {
   color: white;
 }
 
+.ant-select{
+  color: white
+}
+
+.ant-select:not(.ant-select-customize-input) .ant-select-selector
+{
+  background-color: #505967;
+  border: 1px solid #49525F;
+}
+
+.ant-select-clear{
+  background-color: #505967;
+}
+
 .ant-divider-horizontal.ant-divider-with-text
 {
   color: whitesmoke;
