@@ -31,134 +31,146 @@ interface filesPaths {
  datos? : any[];
 }
 
-function FormCapture(){
+interface Ijsonobject {
+    jsonDoc: any;
+}
+
+function FormCapture({ jsonDoc }: Ijsonobject) {
   const styleForm = {
-    padding: "10px",
-    paddingLeft:"20px"
+    padding: '10px',
+    paddingLeft: '20px',
   };
-  return(<>
-        <Form
+
+  const styleBtnSave = {
+    background: '#2C2F3E',
+    color: '#CBD122',
+    borderColor: '#CBD122',
+    alignItem: 'center',
+    overflow: 'auto',
+    align:"center"
+  };
+
+  return (
+    <>
+      <Form
         style={styleForm}
         className="formValidador"
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 14 }}
         layout="vertical"
-        initialValues={{ size: "small" }}
-        size={"small"}
-        >
+        initialValues={{ size: 'small' }}
+        size={'small'}
+      >
         <Divider orientation="left">Empresa</Divider>
-            <Form.Item label="Correo">
-              <Input />
-            </Form.Item>
-            <Form.Item label="Rfc">
-              <Input />
-            </Form.Item>
-          <Form.Item label="Nombre">
+        <Form.Item label="Correo">
           <Input />
+        </Form.Item>
+        <Form.Item label="Rfc">
+          <Input value={jsonDoc.receptor.rfc} />
+        </Form.Item>
+        <Form.Item label="Nombre">
+          <Input value={jsonDoc.receptor.nombre} />
         </Form.Item>
         <Divider orientation="left">Factura</Divider>
-            <Form.Item label="Fecha emision">
-              <Input />
-            </Form.Item>
-            <Form.Item label="Folio">
-              <Input />
-            </Form.Item>
-          <Form.Item label="Folio fiscal">
-          <Input />
+        <Form.Item label="Fecha emision">
+          <Input value={jsonDoc.fecha} />
+        </Form.Item>
+        <Form.Item label="Folio">
+          <Input value={jsonDoc.folio} />
+        </Form.Item>
+        <Form.Item label="Folio fiscal">
+          <Input value={jsonDoc.timbreFiscal.uuid} />
         </Form.Item>
         <Divider orientation="left">Proveedor</Divider>
-            <Form.Item label="Nombre">
-              <Input />
-            </Form.Item>
-            <Form.Item label="Rfc">
-              <Input />
-            </Form.Item>
-          <Form.Item label="Importe">
-          <Input />
+        <Form.Item label="Nombre">
+          <Input value={jsonDoc.emisor.nombre} />
+        </Form.Item>
+        <Form.Item label="Rfc">
+          <Input value={jsonDoc.emisor.rfc} />
+        </Form.Item>
+        <Form.Item label="Importe">
+          <Input value={jsonDoc.total} />
         </Form.Item>
         <Row>
-          <Col span={8} >
-          <Form.Item label="Rfc Proveedor" className="switchForm" >
-            <Switch />
-          </Form.Item>
+          <Col span={8}>
+            <Form.Item label="Rfc Proveedor" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
           <Col span={8}>
-          <Form.Item label="Rfc Cliente" className="switchForm" >
-            <Switch />
-          </Form.Item>
+            <Form.Item label="Rfc Cliente" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
           <Col span={8}>
-          <Form.Item label="Uso cfdi"  className="switchForm">
-            <Switch />
-          </Form.Item>
+            <Form.Item label="Uso cfdi" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
         </Row>
         <Row>
-          <Col span={8} >
-          <Form.Item label="Tipo Cfdi" className="switchForm" >
-            <Switch />
-          </Form.Item>
+          <Col span={8}>
+            <Form.Item label="Tipo Cfdi" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
           <Col span={8}>
-          <Form.Item label="C.P. proverdor" className="switchForm" >
-            <Switch />
-          </Form.Item>
+            <Form.Item label="C.P. proverdor" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
           <Col span={8}>
-          <Form.Item label="Cod Unidad"  className="switchForm">
-            <Switch />
-          </Form.Item>
+            <Form.Item label="Cod Unidad" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
         </Row>
         <Row>
-          <Col span={8} >
-          <Form.Item label="Cod Descripcion" className="switchForm" >
-            <Switch />
-          </Form.Item>
+          <Col span={8}>
+            <Form.Item label="Cod Descripcion" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
           <Col span={8}>
-          <Form.Item label="Forma Pago" className="switchForm" >
-            <Switch />
-          </Form.Item>
+            <Form.Item label="Forma Pago" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
           <Col span={8}>
-          <Form.Item label="Metodo Pago"  className="switchForm">
-            <Switch />
-          </Form.Item>
+            <Form.Item label="Metodo Pago" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
         </Row>
         <Row>
           <Col span={16}>
-          <Form.Item label="Reg Fiscal Proveedor"  className="switchForm">
-            <Switch />
-          </Form.Item>
+            <Form.Item label="Reg Fiscal Proveedor" className="switchForm">
+              <Switch />
+            </Form.Item>
           </Col>
         </Row>
         <Form.Item name="Iva desglosado" label="Iva pesglosado">
-        <Select
-          placeholder="selecciona una opcion"
-          allowClear
-        >
-          <Option value="correcto">Correcto</Option>
-          <Option value="incorrecto">Incorrecto</Option>
-          <Option value="no aplica">No Aplica</Option>
-        </Select>
-      </Form.Item>
-      <Form.Item name="Provicion" label="Provicion">
-        <Select
-          placeholder="selecciona una opcion"
-          allowClear
-        >
-          <Option value="provicionado">Provicionado</Option>
-          <Option value="no aplica">No Aplica</Option>
-          <Option value="pedir cancelacion">Pedir Cancelacion</Option>
-        </Select>
-      </Form.Item>
-          <Form.Item label="Button">
-            <Button>Guardar</Button>
-          </Form.Item>
+          <Select placeholder="selecciona una opcion" allowClear>
+            <Option value="correcto">Correcto</Option>
+            <Option value="incorrecto">Incorrecto</Option>
+            <Option value="no aplica">No Aplica</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item name="Provicion" label="Provicion">
+          <Select placeholder="selecciona una opcion" allowClear>
+            <Option value="provicionado">Provicionado</Option>
+            <Option value="no aplica">No Aplica</Option>
+            <Option value="pedir cancelacion">Pedir Cancelacion</Option>
+          </Select>
+        </Form.Item>
+        <Row>
+          <Col span={24}>
+            <Button style={styleBtnSave}>Guardar</Button>
+          </Col>
+        </Row>
       </Form>
-      </>);
+    </>
+  );
 }
 
 function Main(this: any, {datos}:filesPaths) {
@@ -170,8 +182,8 @@ function Main(this: any, {datos}:filesPaths) {
     alignItem :"center",
     overflow : "auto"
   };
-
-  const [jsonDoc,setjsonDoc] = useState({"CFDI":"XML"});
+  
+  const [jsonDoc, setjsonDoc] = useState(datos[0]);
 
   const handleMenuClick = (jsonObject) =>{
     console.log(jsonObject);
@@ -179,36 +191,50 @@ function Main(this: any, {datos}:filesPaths) {
   }
 
   // Correct! This use of <div> is legitimate because div is a valid HTML tag:
-  return <>
-        <Sider className="side-xml" width={300}>
-          <Header style={{ background:'#2C2F3E'}}>
+  return (
+    <>
+      <Sider className="side-xml" width={300}>
+        <Header style={{ background: '#2C2F3E' }}>
           <Button style={styleBtnAdd}>Agregar XML</Button>
-          </Header>
-          <Menu style={{ width: 300 }} >
-              {
-                datos?.map((item:any) =>{
-                  return <Menu.Item
-                          onClick={() => handleMenuClick(item)}
-                          //onClick={this.handleMenuClick.bind(this, item)}
-                          style={{ background: "#FAFAFA",height:'60px',lineHeight: '20px',marginBottom :'0px',marginTop:'0px',borderBottom:"solid 1px #F0F0F0",paddingTop:'10px' }}
-                          key={item.folio + item.serie}>
-                              {item.emisor.nombre}<br/><span style={{fontStyle:'italic'}}>folio:{item.folio}</span>
-                        </Menu.Item>
-                })
-              }
-          </Menu>
-          </Sider>
-          <Layout style={{overflow: "auto"}}>
-          <Content>
-            <JsonTable json={jsonDoc} />
-          </Content>
-          </Layout>;
-          <Sider width={400}>
-              <Layout  style={{overflow: "auto",background:'#3E4652'}}>
-                <FormCapture></FormCapture>
-              </Layout>
-          </Sider>
-          </>;
+        </Header>
+        <Menu style={{ width: 300 }}>
+          {datos?.map((item: any) => {
+            return (
+              <Menu.Item
+                onClick={() => handleMenuClick(item)}
+                //onClick={this.handleMenuClick.bind(this, item)}
+                style={{
+                  background: '#FAFAFA',
+                  height: '60px',
+                  lineHeight: '20px',
+                  marginBottom: '0px',
+                  marginTop: '0px',
+                  borderBottom: 'solid 1px #F0F0F0',
+                  paddingTop: '10px',
+                }}
+                key={item.folio + item.serie}
+              >
+                {item.emisor.nombre}
+                <br />
+                <span style={{ fontStyle: 'italic' }}>folio:{item.folio}</span>
+              </Menu.Item>
+            );
+          })}
+        </Menu>
+      </Sider>
+      <Layout style={{ overflow: 'auto' }}>
+        <Content>
+          <JsonTable json={jsonDoc} />
+        </Content>
+      </Layout>
+      ;
+      <Sider width={400}>
+        <Layout style={{ overflow: 'auto', background: '#3E4652' }}>
+          <FormCapture jsonDoc={jsonDoc}></FormCapture>
+        </Layout>
+      </Sider>
+    </>
+  );
 }
 
 const Uploader = ({rutas}:filesPaths) => {
