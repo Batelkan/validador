@@ -19,6 +19,8 @@ import {
   Divider,Select} from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import {JsonTable} from 'react-json-to-html';
+import {useForm} from 'react-hook-form';
+
 const ipcrender = require('electron').ipcRenderer;
 const { Sider, Content,Header } = Layout;
 const { Dragger } = Upload;
@@ -35,7 +37,40 @@ interface Ijsonobject {
     jsonDoc: any;
 }
 
+interface Documento{
+  ID: string,
+  Empresa : string,
+  RfcEmpresa : string,
+  FolioFiscal : string,
+  Folio : string,
+  Correo : string,
+  Fecha : string,
+  Proveedor : string,
+  RfcProveedor: string,
+  Importe: string,
+  CheckRfcProveedor : boolean,
+  CheckCP : boolean,
+  CheckRegFiscal : boolean,
+  CheckRfcCliente: boolean,
+  CheckIvaDesglosado: boolean,
+  CheckUsoCFDI: boolean,
+  CheckMetodoPago : boolean,
+  CheckFormaPago : boolean,
+  CheckTipoCFDI : boolean,
+  EstadusPago : string,
+  Observaciones : string,
+  IvaDesglosado : string,
+  ProvicionFactura: string
+}
+
+let documentosFromDb : Documento[] = [];
+
 function FormCapture({ jsonDoc }: Ijsonobject) {
+
+  const {register,handleSubmit,watch,formState:{errors}} = useForm<Documento>();
+
+  const onSubmit = (data : Documento) => console.log(data);
+
   const styleForm = {
     padding: '10px',
     paddingLeft: '20px',
@@ -50,6 +85,22 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
     align:"center"
   };
 
+  const handleSaveClick = () =>{
+    console.log("Llamando al server");
+    ipcrender.invoke('obtenertodos').then((documentos)=>{
+        documentosFromDb = documentos;
+    });
+
+    if(documentosFromDb.length > 0)
+    {
+      console.log(documentosFromDb);
+    }
+    else
+    {
+      console.log("no se descargaron datos de la BD");
+    }
+  }
+
   return (
     <>
       <Form
@@ -62,39 +113,39 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         size={'small'}
       >
         <Divider orientation="left">Empresa</Divider>
-        <Form.Item label="Correo">
-          <Input />
+        <Form.Item label="Correo" >
+          <Input {...register("Correo")} />
         </Form.Item>
-        <Form.Item label="Rfc">
+        <Form.Item label="Rfc"  >
           <Input value={jsonDoc.receptor.rfc} />
         </Form.Item>
-        <Form.Item label="Nombre">
-          <Input value={jsonDoc.receptor.nombre} />
+        <Form.Item label="Nombre" >
+          <Input value={jsonDoc.receptor.nombre} {...register("Empresa")} />
         </Form.Item>
         <Divider orientation="left">Factura</Divider>
-        <Form.Item label="Fecha emision">
-          <Input value={jsonDoc.fecha} />
+        <Form.Item label="Fecha emision" {...register("Fecha")}>
+          <Input value={jsonDoc.fecha} {...register("Fecha")} />
         </Form.Item>
-        <Form.Item label="Folio">
+        <Form.Item label="Folio" {...register("Folio")}>
           <Input value={jsonDoc.folio} />
         </Form.Item>
-        <Form.Item label="Folio fiscal">
-          <Input value={jsonDoc.timbreFiscal.uuid} />
+        <Form.Item label="Folio fiscal" >
+          <Input value={jsonDoc.timbreFiscal.uuid} {...register("FolioFiscal")} />
         </Form.Item>
         <Divider orientation="left">Proveedor</Divider>
-        <Form.Item label="Nombre">
-          <Input value={jsonDoc.emisor.nombre} />
+        <Form.Item label="Nombre" >
+          <Input value={jsonDoc.emisor.nombre} {...register("Proveedor")} />
         </Form.Item>
         <Form.Item label="Rfc">
-          <Input value={jsonDoc.emisor.rfc} />
+          <Input value={jsonDoc.emisor.rfc}  {...register("RfcProveedor")}/>
         </Form.Item>
-        <Form.Item label="Importe">
-          <Input value={jsonDoc.total} />
+        <Form.Item label="Importe" >
+          <Input value={jsonDoc.total} {...register("Importe")} />
         </Form.Item>
         <Row>
           <Col span={8}>
-            <Form.Item label="Rfc Proveedor" className="switchForm">
-              <Switch />
+            <Form.Item label="Rfc Proveedor"  className="switchForm">
+              <Switch {...register("CheckRfcProveedor")} />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -165,7 +216,7 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         </Form.Item>
         <Row>
           <Col span={24}>
-            <Button style={styleBtnSave}>Guardar</Button>
+            <Button style={styleBtnSave} onClick={handleSubmit(onSubmit)}>Guardar</Button>
           </Col>
         </Row>
       </Form>
@@ -182,7 +233,7 @@ function Main(this: any, {datos}:filesPaths) {
     alignItem :"center",
     overflow : "auto"
   };
-  
+
   const [jsonDoc, setjsonDoc] = useState(datos[0]);
 
   const handleMenuClick = (jsonObject) =>{
