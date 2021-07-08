@@ -17,9 +17,9 @@ import {
   Col,
   Switch,
   Divider,Select} from 'antd';
-import { InboxOutlined } from '@ant-design/icons';
+import { InboxOutlined,UploadOutlined } from '@ant-design/icons';
 import {JsonTable} from 'react-json-to-html';
-import {useForm} from 'react-hook-form';
+import {useForm,Controller} from 'react-hook-form';
 
 const ipcrender = require('electron').ipcRenderer;
 const { Sider, Content,Header } = Layout;
@@ -29,6 +29,7 @@ const { Option } = Select;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 interface filesPaths {
  rutas? :  string[];
+ ruta? : string;
  // eslint-disable-next-line react/no-unused-prop-types
  datos? : any[];
 }
@@ -57,17 +58,20 @@ interface Documento{
   CheckMetodoPago : boolean,
   CheckFormaPago : boolean,
   CheckTipoCFDI : boolean,
+  CheckUnidad : boolean,
+  CheckDescripcion : boolean,
   EstadusPago : string,
   Observaciones : string,
   IvaDesglosado : string,
-  ProvicionFactura: string
+  ProvicionFactura: string,
+  Estatus : string
 }
 
 let documentosFromDb : Documento[] = [];
 
 function FormCapture({ jsonDoc }: Ijsonobject) {
 
-  const {register,handleSubmit,watch,formState:{errors}} = useForm<Documento>();
+  const {register,handleSubmit,watch,control,formState:{errors}} = useForm<Documento>();
 
   const onSubmit = (data : Documento) => console.log(data);
 
@@ -114,89 +118,173 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
       >
         <Divider orientation="left">Empresa</Divider>
         <Form.Item label="Correo" >
-          <Input {...register("Correo")} />
+           <Controller
+            control ={control}
+            name= "Correo"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Form.Item label="Rfc"  >
-          <Input value={jsonDoc.receptor.rfc} />
+           <Controller
+            control ={control}
+            defaultValue={jsonDoc.receptor.rfc}
+            name= "RfcEmpresa"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Form.Item label="Nombre" >
-          <Input value={jsonDoc.receptor.nombre} {...register("Empresa")} />
+          <Controller
+            control ={control}
+            defaultValue={jsonDoc.receptor.nombre}
+            name= "Empresa"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Divider orientation="left">Factura</Divider>
-        <Form.Item label="Fecha emision" {...register("Fecha")}>
-          <Input value={jsonDoc.fecha} {...register("Fecha")} />
+        <Form.Item label="Fecha emision" >
+          <Controller
+            control ={control}
+            defaultValue={jsonDoc.fecha}
+            name= "Fecha"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
-        <Form.Item label="Folio" {...register("Folio")}>
-          <Input value={jsonDoc.folio} />
+        <Form.Item label="Folio">
+           <Controller
+            control ={control}
+            defaultValue={jsonDoc.folio}
+            name= "Folio"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Form.Item label="Folio fiscal" >
-          <Input value={jsonDoc.timbreFiscal.uuid} {...register("FolioFiscal")} />
+          <Controller
+            control ={control}
+            defaultValue={jsonDoc.timbreFiscal.uuid}
+            name= "FolioFiscal"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Divider orientation="left">Proveedor</Divider>
         <Form.Item label="Nombre" >
-          <Input value={jsonDoc.emisor.nombre} {...register("Proveedor")} />
+          <Controller
+            control ={control}
+            defaultValue={jsonDoc.emisor.nombre}
+            name= "Proveedor"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Form.Item label="Rfc">
-          <Input value={jsonDoc.emisor.rfc}  {...register("RfcProveedor")}/>
+          <Controller
+            control ={control}
+            defaultValue={jsonDoc.emisor.rfc}
+            name= "RfcProveedor"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Form.Item label="Importe" >
-          <Input value={jsonDoc.total} {...register("Importe")} />
+          <Controller
+            control ={control}
+            defaultValue={jsonDoc.total}
+            name= "Importe"
+            render = {({field})=> <Input {... field}></Input>}
+           />
         </Form.Item>
         <Row>
           <Col span={8}>
             <Form.Item label="Rfc Proveedor"  className="switchForm">
-              <Switch {...register("CheckRfcProveedor")} />
+             <Controller
+            control ={control}
+            name= "CheckRfcProveedor"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Rfc Cliente" className="switchForm">
-              <Switch />
+              <Controller
+            control ={control}
+            name= "CheckRfcCliente"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Uso cfdi" className="switchForm">
-              <Switch />
+             <Controller
+            control ={control}
+            name= "CheckUsoCFDI"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
         </Row>
         <Row>
           <Col span={8}>
             <Form.Item label="Tipo Cfdi" className="switchForm">
-              <Switch />
+             <Controller
+            control ={control}
+            name= "CheckTipoCFDI"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="C.P. proverdor" className="switchForm">
-              <Switch />
+              <Controller
+            control ={control}
+            name= "CheckCP"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Cod Unidad" className="switchForm">
-              <Switch />
+               <Controller
+            control ={control}
+            name= "CheckUnidad"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
         </Row>
         <Row>
           <Col span={8}>
             <Form.Item label="Cod Descripcion" className="switchForm">
-              <Switch />
+              <Controller
+              control ={control}
+              name= "CheckDescripcion"
+              render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Forma Pago" className="switchForm">
-              <Switch />
+              <Controller
+            control ={control}
+            name= "CheckFormaPago"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Metodo Pago" className="switchForm">
-              <Switch />
+              <Controller
+            control ={control}
+            name= "CheckMetodoPago"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
         </Row>
         <Row>
           <Col span={16}>
             <Form.Item label="Reg Fiscal Proveedor" className="switchForm">
-              <Switch />
+             <Controller
+            control ={control}
+            name= "CheckRegFiscal"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
             </Form.Item>
           </Col>
         </Row>
@@ -212,7 +300,24 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
             <Option value="provicionado">Provicionado</Option>
             <Option value="no aplica">No Aplica</Option>
             <Option value="pedir cancelacion">Pedir Cancelacion</Option>
+            <Option value="CANCELADA">Cancelada</Option>
+            <Option value="POR CANCELAR BUZON">Por cancelar</Option>
+            <Option value="EN BUZON CANCELADO">En buzon cancelado</Option>
           </Select>
+        </Form.Item>
+          <Form.Item label="Estatus" >
+          <Controller
+            control ={control}
+            name= "Estatus"
+            render = {({field})=> <Input {... field}></Input>}
+           />
+        </Form.Item>
+            <Form.Item label="Observaciones" >
+          <Controller
+            control ={control}
+            name= "Observaciones"
+            render = {({field})=> <Input.TextArea {... field}></Input.TextArea >}
+           />
         </Form.Item>
         <Row>
           <Col span={24}>
@@ -224,8 +329,7 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
   );
 }
 
-function Main(this: any, {datos}:filesPaths) {
-
+function Main(this: any, {datos,rutas}:filesPaths) {
   const styleBtnAdd = {
     background: "#2C2F3E",
     color: "#CBD122",
@@ -241,12 +345,33 @@ function Main(this: any, {datos}:filesPaths) {
     setjsonDoc(jsonObject);
   }
 
-  // Correct! This use of <div> is legitimate because div is a valid HTML tag:
+  const propUpload = {
+    beforeUpload: (file: { type: string; name: any; }) => {
+      if (file.type !== 'text/xml') {
+        message.error(`${file.name} el archivo no es un xml`);
+      }
+      return file.type === 'text/xml' ? true : Upload.LIST_IGNORE;
+    },
+    onChange: (info : any) => {
+      if (info.file.status === 'done') {
+         rutas=[];
+         rutas =  info.fileList.map((val:any) =>
+        {
+          return (val.originFileObj.path);
+        });
+          ipcrender.send('loadXmlMainProcess',info);
+      } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+  }};
+
   return (
     <>
       <Sider className="side-xml" width={300}>
         <Header style={{ background: '#2C2F3E' }}>
-          <Button style={styleBtnAdd}>Agregar XML</Button>
+          <Upload {... propUpload} multiple={true} >
+            <Button style={styleBtnAdd} icon={<UploadOutlined/>}>Agregar XML</Button>
+          </Upload>
         </Header>
         <Menu style={{ width: 300 }}>
           {datos?.map((item: any) => {
@@ -289,7 +414,6 @@ function Main(this: any, {datos}:filesPaths) {
 }
 
 const Uploader = ({rutas}:filesPaths) => {
-  // Correct! This use of <div> is legitimate because div is a valid HTML tag:
   const propis = {
     beforeUpload: (file: { type: string; name: any; }) => {
       if (file.type !== 'text/xml') {
