@@ -148,3 +148,12 @@ ipcmain.on('loadXmlMainProcess', (event :any, data:[]) => {
     mainWindow.webContents.send('loadJsonCfdi', result);
   }
 });
+
+ipcmain.on('reloadXmlMainProcess', (event: any, data: []) => {
+  const result = data.map((val: string) => {
+    return CfdiToJson.parse({ path: val });
+  });
+  if (mainWindow != null) {
+    mainWindow.webContents.send('loadSingleCfdi', result);
+  }
+});

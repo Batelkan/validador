@@ -2,7 +2,7 @@
 /* eslint-disable import/newline-after-import */
 /* eslint-disable prettier/prettier */
 /* eslint-disable */
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import {
   Layout,
   Menu,
@@ -330,6 +330,7 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
 }
 
 function Main(this: any, {datos,rutas}:filesPaths) {
+
   const styleBtnAdd = {
     background: "#2C2F3E",
     color: "#CBD122",
@@ -339,6 +340,7 @@ function Main(this: any, {datos,rutas}:filesPaths) {
   };
 
   const [jsonDoc, setjsonDoc] = useState(datos[0]);
+  const [jsonList,setJsonList] = useState(datos);
 
   const handleMenuClick = (jsonObject) =>{
     console.log(jsonObject);
@@ -355,15 +357,23 @@ function Main(this: any, {datos,rutas}:filesPaths) {
     onChange: (info : any) => {
       if (info.file.status === 'done') {
          rutas=[];
-         rutas =  info.fileList.map((val:any) =>
-        {
-          return (val.originFileObj.path);
-        });
-          ipcrender.send('loadXmlMainProcess',info);
+          rutas =  info.fileList.map((val:any) =>
+          {
+            return (val.originFileObj.path);
+          });
+          ipcrender.send('reloadXmlMainProcess', rutas);
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }
   }};
+
+   ipcrender.on('loadSingleCfdi', (event: any, xmlsload: any) => {
+     console.log(xmlsload);
+      xmlsload.map((item:any)=>{
+        datos?.push(item);
+        setJsonList(datos);
+      })
+   });
 
   return (
     <>
@@ -374,7 +384,7 @@ function Main(this: any, {datos,rutas}:filesPaths) {
           </Upload>
         </Header>
         <Menu style={{ width: 300 }}>
-          {datos?.map((item: any) => {
+          {jsonList.map((item: any) => {
             return (
               <Menu.Item
                 onClick={() => handleMenuClick(item)}
@@ -412,6 +422,7 @@ function Main(this: any, {datos,rutas}:filesPaths) {
     </>
   );
 }
+
 
 const Uploader = ({rutas}:filesPaths) => {
   const propis = {
