@@ -2,7 +2,7 @@
 /* eslint-disable import/newline-after-import */
 /* eslint-disable prettier/prettier */
 /* eslint-disable */
-import React,{useState,useEffect} from 'react';
+import React,{useEffect, useState, useContext} from 'react';
 import {
   Layout,
   Menu,
@@ -29,9 +29,9 @@ const { Option } = Select;
 // eslint-disable-next-line @typescript-eslint/naming-convention
 interface filesPaths {
  rutas? :  string[];
- ruta? : string;
  // eslint-disable-next-line react/no-unused-prop-types
  datos? : any[];
+ recargar? : ()=> void;
 }
 
 interface Ijsonobject {
@@ -60,20 +60,22 @@ interface Documento{
   CheckTipoCFDI : boolean,
   CheckUnidad : boolean,
   CheckDescripcion : boolean,
-  EstadusPago : string,
+  EstatusPago : string,
   Observaciones : string,
   IvaDesglosado : string,
-  ProvicionFactura: string,
-  Estatus : string
+  ProvicionFactura: string
 }
 
 let documentosFromDb : Documento[] = [];
 
 function FormCapture({ jsonDoc }: Ijsonobject) {
 
-  const {register,handleSubmit,watch,control,formState:{errors}} = useForm<Documento>();
+  const {register,handleSubmit,control, setValue, getValues} = useForm<Documento>();
 
-  const onSubmit = (data : Documento) => console.log(data);
+  const onSubmit = () => {
+    console.log(getValues());
+     ipcrender.invoke('insertarnuevo',getValues());
+  };
 
   const styleForm = {
     padding: '10px',
@@ -104,6 +106,19 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
       console.log("no se descargaron datos de la BD");
     }
   }
+
+   useEffect(() => {
+    if (jsonDoc) {
+      setValue( 'RfcEmpresa', jsonDoc.receptor.rfc);
+      setValue( 'Empresa', jsonDoc.receptor.nombre);
+      setValue( 'Folio', jsonDoc.folio);
+      setValue( 'Fecha', jsonDoc.fecha);
+      setValue( 'FolioFiscal', jsonDoc.timbreFiscal.uuid);
+      setValue( 'Proveedor', jsonDoc.emisor.nombre);
+      setValue( 'RfcProveedor', jsonDoc.emisor.rfc);
+      setValue( 'Importe', jsonDoc.total);
+    }
+  }, [jsonDoc]);
 
   return (
     <>
@@ -240,7 +255,7 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
           </Col>
           <Col span={8}>
             <Form.Item label="Cod Unidad" className="switchForm">
-               <Controller
+            <Controller
             control ={control}
             name= "CheckUnidad"
             render = {({field})=> <Switch {... field}></Switch>}
@@ -288,27 +303,39 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item name="Iva desglosado" label="Iva pesglosado">
-          <Select placeholder="selecciona una opcion" allowClear>
-            <Option value="correcto">Correcto</Option>
-            <Option value="incorrecto">Incorrecto</Option>
-            <Option value="no aplica">No Aplica</Option>
-          </Select>
+        <Form.Item  label="Iva pesglosado">
+          <Controller
+          control ={control}
+          name="IvaDesglosado"
+          render = {({field}) =>
+                <Select {... field} placeholder="selecciona una opcion" allowClear>
+                  <Option value="correcto">Correcto</Option>
+                  <Option value="incorrecto">Incorrecto</Option>
+                  <Option value="no aplica">No Aplica</Option>
+                </Select>
+            }
+          />
         </Form.Item>
-        <Form.Item name="Provicion" label="Provicion">
-          <Select placeholder="selecciona una opcion" allowClear>
-            <Option value="provicionado">Provicionado</Option>
-            <Option value="no aplica">No Aplica</Option>
-            <Option value="pedir cancelacion">Pedir Cancelacion</Option>
-            <Option value="CANCELADA">Cancelada</Option>
-            <Option value="POR CANCELAR BUZON">Por cancelar</Option>
-            <Option value="EN BUZON CANCELADO">En buzon cancelado</Option>
-          </Select>
+        <Form.Item label="Provicion">
+          <Controller
+          control ={control}
+          name="ProvicionFactura"
+          render = {({field}) =>
+                <Select {... field} placeholder="selecciona una opcion" allowClear>
+                  <Option value="provicionado">Provicionado</Option>
+                  <Option value="no aplica">No Aplica</Option>
+                  <Option value="pedir cancelacion">Pedir Cancelacion</Option>
+                  <Option value="CANCELADA">Cancelada</Option>
+                  <Option value="POR CANCELAR BUZON">Por cancelar</Option>
+                  <Option value="EN BUZON CANCELADO">En buzon cancelado</Option>
+                </Select>
+            }
+          />
         </Form.Item>
           <Form.Item label="Estatus" >
           <Controller
             control ={control}
-            name= "Estatus"
+            name= "EstatusPago"
             render = {({field})=> <Input {... field}></Input>}
            />
         </Form.Item>
@@ -329,8 +356,7 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
   );
 }
 
-function Main(this: any, {datos,rutas}:filesPaths) {
-
+function Main(this: any, {datos,recargar}:filesPaths) {
   const styleBtnAdd = {
     background: "#2C2F3E",
     color: "#CBD122",
@@ -343,45 +369,14 @@ function Main(this: any, {datos,rutas}:filesPaths) {
   const [jsonList,setJsonList] = useState(datos);
 
   const handleMenuClick = (jsonObject) =>{
-    console.log(jsonObject);
     setjsonDoc(jsonObject);
   }
-
-  const propUpload = {
-    beforeUpload: (file: { type: string; name: any; }) => {
-      if (file.type !== 'text/xml') {
-        message.error(`${file.name} el archivo no es un xml`);
-      }
-      return file.type === 'text/xml' ? true : Upload.LIST_IGNORE;
-    },
-    onChange: (info : any) => {
-      if (info.file.status === 'done') {
-         rutas=[];
-          rutas =  info.fileList.map((val:any) =>
-          {
-            return (val.originFileObj.path);
-          });
-          ipcrender.send('reloadXmlMainProcess', rutas);
-      } else if (info.file.status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-  }};
-
-   ipcrender.on('loadSingleCfdi', (event: any, xmlsload: any) => {
-     console.log(xmlsload);
-      xmlsload.map((item:any)=>{
-        datos?.push(item);
-        setJsonList(datos);
-      })
-   });
 
   return (
     <>
       <Sider className="side-xml" width={300}>
         <Header style={{ background: '#2C2F3E' }}>
-          <Upload {... propUpload} multiple={true} >
-            <Button style={styleBtnAdd} icon={<UploadOutlined/>}>Agregar XML</Button>
-          </Upload>
+          <Button style={styleBtnAdd} onClick={()=> {recargar();}} icon={<UploadOutlined/>}>Recargar otros xml</Button>
         </Header>
         <Menu style={{ width: 300 }}>
           {jsonList.map((item: any) => {
@@ -413,7 +408,6 @@ function Main(this: any, {datos,rutas}:filesPaths) {
           <JsonTable json={jsonDoc} />
         </Content>
       </Layout>
-      ;
       <Sider width={400}>
         <Layout style={{ overflow: 'auto', background: '#3E4652' }}>
           <FormCapture jsonDoc={jsonDoc}></FormCapture>
@@ -462,12 +456,16 @@ const LayoutVerfication = ()=>  {
     setjsoncfdi(xmlsload);
   });
 
+  const reload = ()=>{
+    setjsoncfdi([]);
+  }
+
   return (
     <>
       <Layout>
         <Sider width={50}>Sider</Sider>
         <Layout className="layoutMainVerification">
-          {(jsoncfdi.length > 0) ? <Main datos={jsoncfdi}/> : <Uploader rutas={[]} />}
+          {(jsoncfdi.length > 0) ? <Main datos={jsoncfdi} recargar={reload}/> : <Uploader rutas={[]} />}
         </Layout>
       </Layout>
     </>
