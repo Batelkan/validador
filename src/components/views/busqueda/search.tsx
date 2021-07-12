@@ -2,20 +2,7 @@
 import React, { useState } from 'react';
 import {
   Layout,
-  Table,
-  Menu,
-  Button,
-  Upload,
-  message,
-  Form,
-  Input,
-  Radio,
-  InputNumber,
-  Row,
-  Col,
-  Switch,
-  Divider,
-  Select,
+  Table
 } from 'antd';
 
 const LayoutSearch = () => {
