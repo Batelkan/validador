@@ -1,5 +1,4 @@
-/* eslint-disable prefer-destructuring */
-/* eslint-disable prettier/prettier */
+/* eslint-disable */
 const Connection = require("tedious").Connection;
 const Request = require("tedious").Request;
 const {ipcMain} =  require('electron');
