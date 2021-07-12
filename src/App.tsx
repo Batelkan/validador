@@ -7,7 +7,7 @@ import {
 } from 'antd';
 import { ProfileTwoTone, FileAddTwoTone} from '@ant-design/icons';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import {layoutVerfication as Verification} from './components/views/validacion';
+import LayoutVerificacion from './components/views/validacion';
 import  LayoutSearch  from './components/views/busqueda';
 import './App.global.css';
 
@@ -15,7 +15,7 @@ const { Sider, Content } = Layout;
 
 const validacion = () => {
   return (
-     <Verification />
+     <LayoutVerificacion />
   );
 };
 
@@ -30,26 +30,30 @@ export default function App() {
     <Router>
       <Layout>
         <Sider width={60}>
-          <Menu defaultSelectedKeys={['1']} mode="vertical" theme="dark">
+          <Menu
+            defaultSelectedKeys={['1']}
+            mode="vertical"
+            theme="dark"
+          >
             <Menu.Item key="1">
               <Tooltip placement="right" title="Capturar Facturas">
-              <Link to="/">
+                <Link to="/">
                   <FileAddTwoTone style={{ fontSize: '22px' }} />
-              </Link>
+                </Link>
               </Tooltip>
             </Menu.Item>
             <Menu.Item key="2">
               <Tooltip placement="right" title="Buscar Facturas">
-              <Link to="/search">
+                <Link to="/search">
                   <ProfileTwoTone style={{ fontSize: '22px' }} />
-              </Link>
+                </Link>
               </Tooltip>
             </Menu.Item>
           </Menu>
         </Sider>
         <Content style={{ height: '100%' }}>
           <Route exact path="/" component={validacion} />
-          <Route path="/search" component={busqueda} />
+          <Route exact path="/search" component={busqueda} />
         </Content>
       </Layout>
     </Router>

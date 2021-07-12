@@ -461,14 +461,9 @@ const LayoutVerfication = ()=>  {
   }
 
   return (
-    <>
-      <Layout>
-        <Sider width={50}>Sider</Sider>
         <Layout className="layoutMainVerification">
           {(jsoncfdi.length > 0) ? <Main datos={jsoncfdi} recargar={reload}/> : <Uploader rutas={[]} />}
         </Layout>
-      </Layout>
-    </>
   );
 }
 
