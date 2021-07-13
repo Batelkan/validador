@@ -1,13 +1,9 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable import/newline-after-import */
-/* eslint-disable prettier/prettier */
 /* eslint-disable */
+
 import React,{useEffect, useState, useContext} from 'react';
 import {
   Layout,
-  Menu,
   Button,
-  Upload,
   message,
   Form,
   Input,
@@ -16,25 +12,9 @@ import {
   Switch,
   Divider,Select} from 'antd';
 import { InboxOutlined,UploadOutlined } from '@ant-design/icons';
-import {JsonTable} from 'react-json-to-html';
 import {useForm,Controller} from 'react-hook-form';
 
-const ipcrender = require('electron').ipcRenderer;
-const { Sider, Content,Header } = Layout;
-const { Dragger } = Upload;
 const { Option } = Select;
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-interface filesPaths {
- rutas? :  string[];
- // eslint-disable-next-line react/no-unused-prop-types
- datos? : any[];
- recargar? : ()=> void;
-}
-
-interface Ijsonobject {
-    jsonDoc: any;
-}
 
 interface Documento{
   ID: string,
@@ -64,68 +44,37 @@ interface Documento{
   ProvicionFactura: string
 }
 
-let documentosFromDb : Documento[] = [];
+// Formulario de actualizacion
+// -----------------------------------------------------------
 
-function FormCapture({ jsonDoc }: Ijsonobject) {
-
+export const FormUpdate = ( doc:any ) => {
+  const [jsonDoc, setjsonDoc] = useState(doc.doc);
   const {register,handleSubmit,control, setValue, getValues} = useForm<Documento>();
 
   const onSubmit = () => {
     console.log(getValues());
-     ipcrender.invoke('insertarnuevo',getValues());
   };
 
-  const styleForm = {
-    padding: '10px',
-    paddingLeft: '20px',
-  };
-
-  const styleBtnSave = {
-    background: '#2C2F3E',
-    color: '#CBD122',
-    borderColor: '#CBD122',
-    alignItem: 'center',
-    overflow: 'auto',
-    align:"center"
-  };
-
-  const handleSaveClick = () =>{
-    console.log("Llamando al server");
-    ipcrender.invoke('obtenertodos').then((documentos)=>{
-        documentosFromDb = documentos;
-    });
-
-    if(documentosFromDb.length > 0)
-    {
-      console.log(documentosFromDb);
-    }
-    else
-    {
-      console.log("no se descargaron datos de la BD");
-    }
-  }
-
-   useEffect(() => {
+  useEffect(() => {
+    console.log(jsonDoc);
     if (jsonDoc) {
-      setValue( 'RfcEmpresa', jsonDoc.receptor.rfc);
-      setValue( 'Empresa', jsonDoc.receptor.nombre);
-      setValue( 'Folio', jsonDoc.folio);
-      setValue( 'Fecha', jsonDoc.fecha);
-      setValue( 'FolioFiscal', jsonDoc.timbreFiscal.uuid);
-      setValue( 'Proveedor', jsonDoc.emisor.nombre);
-      setValue( 'RfcProveedor', jsonDoc.emisor.rfc);
-      setValue( 'Importe', jsonDoc.total);
+      setValue( 'RfcEmpresa', jsonDoc.RfcEmpresa);
+      setValue( 'Empresa', jsonDoc.Empresa);
+      setValue( 'Folio', jsonDoc.Folio);
+      setValue( 'Fecha', jsonDoc.Fecha);
+      setValue( 'FolioFiscal', jsonDoc.FolioFiscal);
+      setValue( 'Proveedor', jsonDoc.Proveedor);
+      setValue( 'RfcProveedor', jsonDoc.RfcProveedor);
+      setValue( 'Importe', jsonDoc.Importe);
     }
   }, [jsonDoc]);
 
-  return (
-    <>
+  return(
+     <>
       <Form
-        style={styleForm}
-        className="formValidador"
-        labelCol={{ span: 4 }}
-        wrapperCol={{ span: 14 }}
         layout="vertical"
+        labelCol={{ span: 4 }}
+        wrapperCol={{ span: 24}}
         initialValues={{ size: 'small' }}
         size={'small'}
       >
@@ -140,7 +89,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Rfc"  >
            <Controller
             control ={control}
-            defaultValue={jsonDoc.receptor.rfc}
             name= "RfcEmpresa"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -148,7 +96,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Nombre" >
           <Controller
             control ={control}
-            defaultValue={jsonDoc.receptor.nombre}
             name= "Empresa"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -157,7 +104,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Fecha emision" >
           <Controller
             control ={control}
-            defaultValue={jsonDoc.fecha}
             name= "Fecha"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -165,7 +111,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Folio">
            <Controller
             control ={control}
-            defaultValue={jsonDoc.folio}
             name= "Folio"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -173,7 +118,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Folio fiscal" >
           <Controller
             control ={control}
-            defaultValue={jsonDoc.timbreFiscal.uuid}
             name= "FolioFiscal"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -182,7 +126,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Nombre" >
           <Controller
             control ={control}
-            defaultValue={jsonDoc.emisor.nombre}
             name= "Proveedor"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -190,7 +133,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Rfc">
           <Controller
             control ={control}
-            defaultValue={jsonDoc.emisor.rfc}
             name= "RfcProveedor"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -198,7 +140,6 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         <Form.Item label="Importe" >
           <Controller
             control ={control}
-            defaultValue={jsonDoc.total}
             name= "Importe"
             render = {({field})=> <Input {... field}></Input>}
            />
@@ -346,123 +287,10 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         </Form.Item>
         <Row>
           <Col span={24}>
-            <Button style={styleBtnSave} onClick={handleSubmit(onSubmit)}>Guardar</Button>
+            <Button onClick={handleSubmit(onSubmit)}>Guardar</Button>
           </Col>
         </Row>
       </Form>
     </>
   );
 }
-
-function Main(this: any, {datos,recargar}:filesPaths) {
-  const styleBtnAdd = {
-    background: "#2C2F3E",
-    color: "#CBD122",
-    borderColor:"#CBD122",
-    alignItem :"center",
-    overflow : "auto"
-  };
-
-  const [jsonDoc, setjsonDoc] = useState(datos[0]);
-  const [jsonList,setJsonList] = useState(datos);
-
-  const handleMenuClick = (jsonObject) =>{
-    setjsonDoc(jsonObject);
-  }
-
-  return (
-    <>
-      <Sider className="side-xml" width={300}>
-        <Header style={{ background: '#2C2F3E' }}>
-          <Button style={styleBtnAdd} onClick={()=> {recargar();}} icon={<UploadOutlined/>}>Recargar otros xml</Button>
-        </Header>
-        <Menu style={{ width: 300 }}>
-          {jsonList.map((item: any) => {
-            return (
-              <Menu.Item
-                onClick={() => handleMenuClick(item)}
-                //onClick={this.handleMenuClick.bind(this, item)}
-                style={{
-                  background: '#FAFAFA',
-                  height: '60px',
-                  lineHeight: '20px',
-                  marginBottom: '0px',
-                  marginTop: '0px',
-                  borderBottom: 'solid 1px #F0F0F0',
-                  paddingTop: '10px',
-                }}
-                key={item.folio + item.serie}
-              >
-                {item.emisor.nombre}
-                <br />
-                <span style={{ fontStyle: 'italic' }}>folio:{item.folio}</span>
-              </Menu.Item>
-            );
-          })}
-        </Menu>
-      </Sider>
-      <Layout style={{ overflow: 'auto' }}>
-        <Content>
-          <JsonTable json={jsonDoc} />
-        </Content>
-      </Layout>
-      <Sider width={400}>
-        <Layout style={{ overflow: 'auto', background: '#3E4652' }}>
-          <FormCapture jsonDoc={jsonDoc}></FormCapture>
-        </Layout>
-      </Sider>
-    </>
-  );
-}
-
-
-const Uploader = ({rutas}:filesPaths) => {
-  const propis = {
-    beforeUpload: (file: { type: string; name: any; }) => {
-      if (file.type !== 'text/xml') {
-        message.error(`${file.name} el archivo no es un xml`);
-      }
-      return file.type === 'text/xml' ? true : Upload.LIST_IGNORE;
-    },
-    onChange: (info: { fileList  : any []}) => {
-      rutas =  info.fileList.map((val:any) =>
-        {
-          return (val.originFileObj.path);
-        });
-      ipcrender.send('loadXmlMainProcess',rutas);
-  }};
-
-  return (
-    <Dragger style={{height:"100%"}} beforeUpload={propis.beforeUpload} onChange={propis.onChange}  multiple={true}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p className="ant-upload-text">Click o arrastra los XML a esta area para cargarlos a la aplicacion</p>
-        <p className="ant-upload-hint">
-          Solo se admiten archivos XML
-        </p>
-    </Dragger>
-  );
-};
-
-
-const LayoutVerfication = ()=>  {
-
-  const [jsoncfdi,setjsoncfdi] = useState([]);
-
-  ipcrender.on('loadJsonCfdi', (event:any, xmlsload:any) => {
-    setjsoncfdi(xmlsload);
-  });
-
-  const reload = ()=>{
-    setjsoncfdi([]);
-  }
-
-  return (
-        <Layout className="layoutMainVerification">
-          {(jsoncfdi.length > 0) ? <Main datos={jsoncfdi} recargar={reload}/> : <Uploader rutas={[]} />}
-        </Layout>
-  );
-}
-
-export default LayoutVerfication;

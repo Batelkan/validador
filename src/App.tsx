@@ -6,7 +6,7 @@ import {
   Tooltip
 } from 'antd';
 import { ProfileTwoTone, FileAddTwoTone} from '@ant-design/icons';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Route, Link } from 'react-router-dom';
 import LayoutVerificacion from './components/views/validacion';
 import  LayoutSearch  from './components/views/busqueda';
 import './App.global.css';

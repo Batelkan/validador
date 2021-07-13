@@ -95,8 +95,7 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
       mainWindow.focus();
-      // Carga api de mssql
-      require('./services/sqlservice');
+       require('./services/sqlservice');
     }
   });
 
