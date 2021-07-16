@@ -2,9 +2,8 @@
  * @NOTE: Prepend a `~` to css file paths that are in your node_modules
  *        See https://github.com/webpack-contrib/sass-loader#imports
  */
- @import '~antd/dist/antd.css';
+@import '~antd/dist/antd.css';
 body {
-
   background: linear-gradient(
     200.96deg,
     #fedc2a -29.09%,
@@ -18,60 +17,62 @@ body {
   align-items: center;
 }
 
-#root{
+#root {
   width: 100%;
   height: 100%;
 }
 
-.ant-layout{
-  height:inherit;
+.ant-layout {
+  height: inherit;
 }
 
-.side-xml{
+.side-xml {
   background: white;
 }
 
-.layoutMainVerification > span{
+.layoutMainVerification > span {
   height: 100%;
 }
 
-.ant-form-item-label > label{
-  color:#4889D2;
+.ant-form-item-label > label {
+  color: #4889d2;
 }
 
-.ant-input{
+.ant-input {
   background-color: #505967;
-  border: 1px solid #49525F;
+  border: 1px solid #49525f;
   color: white;
 }
 
-.ant-select{
-  color: white
+.ant-select {
+  color: white;
 }
 
-.ant-select:not(.ant-select-customize-input) .ant-select-selector
-{
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
   background-color: #505967;
-  border: 1px solid #49525F;
+  border: 1px solid #49525f;
 }
 
-.ant-select-clear{
+.ant-select-clear {
   background-color: #505967;
 }
 
-.ant-divider-horizontal.ant-divider-with-text
-{
+.ant-divider-horizontal.ant-divider-with-text {
   color: whitesmoke;
   font-size: small;
   border: #223146;
 }
 
- .formValidador .ant-col-4 {
-   max-width: 100%;
- }
+.formValidador .ant-col-4 {
+  max-width: 100%;
+}
 
- .switchForm .ant-form-item-label > label {
-  font-size: "small"
+.formUpdate .ant-col-4 {
+  max-width: 100%;
+}
+
+.switchForm .ant-form-item-label > label {
+  font-size: 'small';
 }
 
 .formValidador .ant-switch-small {
@@ -79,8 +80,23 @@ body {
   height: 22px;
 }
 
-.formValidador  .ant-switch-small .ant-switch-handle
-{
+.formValidador .ant-switch-small .ant-switch-handle {
   width: 18px;
   height: 18px;
+}
+
+.ant-modal-content {
+  background-color: #3e4652;
+}
+
+.ant-modal-header {
+  background-color: #3e4652;
+}
+
+.ant-modal-title {
+  color: white;
+}
+
+.ant-modal-content {
+  min-width: 1000px;
 }

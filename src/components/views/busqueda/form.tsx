@@ -47,8 +47,8 @@ interface Documento{
 // Formulario de actualizacion
 // -----------------------------------------------------------
 
-export const FormUpdate = ( doc:any ) => {
-  const [jsonDoc, setjsonDoc] = useState(doc.doc);
+export const FormUpdate = ( {jsonDoc}:any ) => {
+
   const {register,handleSubmit,control, setValue, getValues} = useForm<Documento>();
 
   const onSubmit = () => {
@@ -69,9 +69,14 @@ export const FormUpdate = ( doc:any ) => {
     }
   }, [jsonDoc]);
 
+  const handleUpdateFields = {
+
+  }
+
   return(
      <>
       <Form
+      className='formUpdate'
         layout="vertical"
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 24}}

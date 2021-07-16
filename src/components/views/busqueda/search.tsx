@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import {FormUpdate} from './form';
+import {Viewerjson} from './viewerjson';
 import { EditOutlined,EyeFilled } from '@ant-design/icons';
 import {
   Layout,
@@ -11,6 +12,7 @@ import {
 } from 'antd';
 
 const mocksource = require('/src/services/mock.json');
+const {Sider,Content} = Layout;
 
 interface Ijsonobject {
     jsonDoc: any;
@@ -74,7 +76,6 @@ const LayoutSearch = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-
 
 // NOTE columnas de la tabla
 
@@ -161,9 +162,18 @@ const LayoutSearch = () => {
   return (
     <Layout style={{ background: '#fff', overflow: 'auto' }}>
      <Table size="small" columns={columns} dataSource={mocksource} />
-      <Modal title="Basic Modal" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-        <FormUpdate doc={jsonDoc}/>
-      </Modal>
+    <Modal title='Docuento' visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+       <Layout>
+        <Sider width={350}>
+            <Layout style={{ overflow: 'auto', background: '#3E4652', paddingRight:'5px' }}>
+              <FormUpdate jsonDoc={jsonDoc}/>
+            </Layout>
+        </Sider>
+        <Layout>
+          <Content> <Viewerjson /></Content>
+        </Layout>
+       </Layout>
+    </Modal>
     </Layout>
   );
 };
