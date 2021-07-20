@@ -51,17 +51,16 @@ interface Documento{
 const LayoutSearch = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+ // useEffect(()=>{console.log(isModalVisible);});
+
   const [jsonDoc, setjsonDoc] = useState<Documento>();
-
-
   useEffect(() => {
    if(jsonDoc !== undefined )
       {
           setIsModalVisible(true);
       }
-}, [jsonDoc]);
-
-useEffect(()=>{},[isModalVisible]);
+  });
 
   // NOTE Operaciones del compontente
 
@@ -71,10 +70,12 @@ useEffect(()=>{},[isModalVisible]);
 
   const handleOk = () => {
     setIsModalVisible(false);
+    setjsonDoc(undefined);
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    setjsonDoc(undefined);
   };
 
 // NOTE columnas de la tabla
@@ -176,7 +177,7 @@ useEffect(()=>{},[isModalVisible]);
               </Layout>
           </Sider>
           <Layout style={{ overflow: 'auto',maxHeight:'600px'}}>
-            <Content> <Viewerjson isCloseModal = {isModalVisible} /></Content>
+            <Content> <Viewerjson isCloseModal={isModalVisible} /></Content>
           </Layout>
        </Layout>
     </Modal>
