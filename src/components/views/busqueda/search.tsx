@@ -55,13 +55,13 @@ const LayoutSearch = () => {
 
 
   useEffect(() => {
-    // Abre el modal al actualizar el estado de jsonDoc
-    console.log(jsonDoc)
    if(jsonDoc !== undefined )
       {
           setIsModalVisible(true);
       }
 }, [jsonDoc]);
+
+useEffect(()=>{},[isModalVisible]);
 
   // NOTE Operaciones del compontente
 
@@ -161,17 +161,23 @@ const LayoutSearch = () => {
 
   return (
     <Layout style={{ background: '#fff', overflow: 'auto' }}>
-     <Table size="small" columns={columns} dataSource={mocksource} />
-    <Modal title='Docuento' visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+      <Table size="small" columns={columns} dataSource={mocksource} />
+    <Modal
+      title='Documento'
+      centered
+      width='350'
+      visible={isModalVisible}
+      onOk={handleOk}
+      onCancel={handleCancel}>
        <Layout>
-        <Sider width={350}>
-            <Layout style={{ overflow: 'auto', background: '#3E4652', paddingRight:'5px' }}>
-              <FormUpdate jsonDoc={jsonDoc}/>
-            </Layout>
-        </Sider>
-        <Layout>
-          <Content> <Viewerjson /></Content>
-        </Layout>
+          <Sider width={400}>
+              <Layout style={{ overflow: 'auto', background: '#3E4652', paddingRight:'10px', maxHeight:'600px' }}>
+                <FormUpdate jsonDoc={jsonDoc}/>
+              </Layout>
+          </Sider>
+          <Layout style={{ overflow: 'auto',maxHeight:'600px'}}>
+            <Content> <Viewerjson isCloseModal = {isModalVisible} /></Content>
+          </Layout>
        </Layout>
     </Modal>
     </Layout>

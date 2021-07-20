@@ -152,6 +152,9 @@ ipcmain.on('reloadXmlMainProcess', (event: any, data: []) => {
   const result = data.map((val: string) => {
     return CfdiToJson.parse({ path: val });
   });
+
+  console.log(result);
+
   if (mainWindow != null) {
     mainWindow.webContents.send('loadSingleCfdi', result);
   }
