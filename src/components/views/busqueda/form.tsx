@@ -56,7 +56,6 @@ export const FormUpdate = ( {jsonDoc}:any ) => {
   };
 
   useEffect(() => {
-    console.log(jsonDoc);
     if (jsonDoc) {
       setValue( 'RfcEmpresa', jsonDoc.RfcEmpresa);
       setValue( 'Empresa', jsonDoc.Empresa);
@@ -290,11 +289,6 @@ export const FormUpdate = ( {jsonDoc}:any ) => {
             render = {({field})=> <Input.TextArea {... field}></Input.TextArea >}
            />
         </Form.Item>
-        <Row>
-          <Col span={24}>
-            <Button onClick={handleSubmit(onSubmit)}>Guardar</Button>
-          </Col>
-        </Row>
       </Form>
     </>
   );

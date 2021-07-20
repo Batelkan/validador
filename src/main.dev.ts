@@ -149,10 +149,12 @@ ipcmain.on('loadXmlMainProcess', (event :any, data:[]) => {
 });
 
 ipcmain.on('reloadXmlMainProcess', (event: any, data: []) => {
-  const result = data.map((val: string) => {
+  let result = data.map((val: string) => {
     return CfdiToJson.parse({ path: val });
   });
+
   if (mainWindow != null) {
     mainWindow.webContents.send('loadSingleCfdi', result);
+    result = [];
   }
 });
