@@ -115,6 +115,17 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
       setValue( 'Proveedor', jsonDoc.emisor.nombre);
       setValue( 'RfcProveedor', jsonDoc.emisor.rfc);
       setValue( 'Importe', jsonDoc.total);
+      setValue( 'CheckRfcProveedor',false);
+      setValue( 'CheckCP',false);
+      setValue( 'CheckRegFiscal',false);
+      setValue( 'CheckRfcCliente',false);
+      setValue( 'CheckIvaDesglosado',false);
+      setValue( 'CheckUsoCFDI',false);
+      setValue( 'CheckMetodoPago',false);
+      setValue( 'CheckFormaPago',false);
+      setValue( 'CheckTipoCFDI',false);
+      setValue( 'CheckUnidad',false);
+      setValue( 'CheckDescripcion',false);
     }
   }, [jsonDoc]);
 
@@ -291,11 +302,20 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
           </Col>
         </Row>
         <Row>
-          <Col span={16}>
+          <Col span={12}>
             <Form.Item label="Reg Fiscal Proveedor" className="switchForm">
              <Controller
             control ={control}
             name= "CheckRegFiscal"
+            render = {({field})=> <Switch {... field}></Switch>}
+           />
+            </Form.Item>
+          </Col>
+           <Col span={12}>
+            <Form.Item label="Iva desglosado" className="switchForm">
+             <Controller
+            control ={control}
+            name= "CheckIvaDesglosado"
             render = {({field})=> <Switch {... field}></Switch>}
            />
             </Form.Item>

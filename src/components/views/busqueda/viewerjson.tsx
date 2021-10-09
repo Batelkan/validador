@@ -41,7 +41,6 @@ export const Viewerjson = ( isCloseModal: any) => {
   }
 
  ipcrender.once('loadSingleCfdi', (event: any, xmlsload: any[]) => {
-   console.log(xmlsload[0]);
    setDocument(xmlsload[0]);
    ipcrender.removeAllListeners('loadSingleCfdi');
  });

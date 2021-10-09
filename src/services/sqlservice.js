@@ -9,7 +9,7 @@ const config = {
             type:'default',
             options:{
                 userName :'Validacion',
-                password:'desur$td350'
+                password:'desur@td350'
             }
         },
           options: {
@@ -92,10 +92,43 @@ const readFromDb = (connection, sqlQuery)=> {
     });
 };
 
-const getDocuments = () =>{
+const  getDocuments = () =>{
     return new Promise((resolve,reject)=>{
         connectToServer().then(connection => {
-            const sqlStr = 'SELECT TOP(20) * FROM Validacion.Facturas';
+            const sqlStr = 'SELECT TOP(20) * FROM Validacion.Facturas order by Fecha desc';
+            return readFromDb(connection,sqlStr);
+        })
+        .then(documentos => resolve(documentos))
+        .catch(err => reject(err));
+    });
+};
+
+const  getDocumentsByFolio = (folio) =>{
+    return new Promise((resolve,reject)=>{
+        connectToServer().then(connection => {
+            const sqlStr = `SELECT * FROM Validacion.Facturas WHERE FolioFiscal = '${folio}'  ORDER BY ID desc`;
+            return readFromDb(connection,sqlStr);
+        })
+        .then(documentos => resolve(documentos))
+        .catch(err => reject(err));
+    });
+};
+
+const  getDocumentsByRfc = (rfc) =>{
+    return new Promise((resolve,reject)=>{
+        connectToServer().then(connection => {
+            const sqlStr = `SELECT * FROM Validacion.Facturas WHERE RfcProveedor = '${rfc}'  ORDER BY ID desc`;
+            return readFromDb(connection,sqlStr);
+        })
+        .then(documentos => resolve(documentos))
+        .catch(err => reject(err));
+    });
+};
+
+const  getDocumentsByDates= (dates) =>{
+    return new Promise((resolve,reject)=>{
+        connectToServer().then(connection => {
+            const sqlStr = `SELECT * FROM Validacion.Facturas WHERE Fecha BETWEEN '${dates[0]}' AND '${dates[1]}' ORDER BY Fecha desc`;
             return readFromDb(connection,sqlStr);
         })
         .then(documentos => resolve(documentos))
@@ -190,8 +223,26 @@ const insertNewTransaccion = (connection,document) => {
    })
 }
 
+ipcMain.handle('obtenertodos',async (event,arg)=> {
+  let data =  await getDocuments();
+  return  data;
+});
 
-ipcMain.handle('obtenertodos', getDocuments);
+ipcMain.handle('obtenerPorFolio',async (event,arg)=> {
+  let data =  await getDocumentsByFolio(arg);
+  return  data;
+});
+
+ipcMain.handle('obtenerPorRfc',async (event,arg)=> {
+  let data =  await getDocumentsByRfc(arg);
+  return  data;
+});
+
+ipcMain.handle('obtenerPorFecha',async (event,arg)=> {
+  let data =  await getDocumentsByDates(arg);
+  return  data;
+});
+
 ipcMain.handle('insertarnuevo', (event,data) => {
     connectToServer().then(connection => insertNewTransaccion(connection,data)).catch((err)=> console.log(err))
 });

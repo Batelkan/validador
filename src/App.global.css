@@ -100,3 +100,21 @@ body {
 .ant-modal-content {
   min-width: 1000px;
 }
+
+.ant-picker {
+  background: #505967;
+  border: 1px solid #49525f;
+}
+
+.ant-picker-input > input {
+  color: white;
+}
+
+.ant-picker-clear {
+  background: #505967;
+}
+
+.ant-input-affix-wrapper {
+  background-color: #505967;
+  border: 1px solid #49525f;
+}
