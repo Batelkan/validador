@@ -1,6 +1,7 @@
 /* eslint-disable */
 // NOTE Imports
 import React, { useState, useEffect } from 'react';
+import {Cdocumento} from '../../../types/types';
 import {FormUpdate} from './form';
 import {Viewerjson} from './viewerjson';
 import { EditOutlined,EyeFilled } from '@ant-design/icons';
@@ -19,14 +20,10 @@ import {
   notification
 } from 'antd';
 import { DownloadOutlined,DislikeTwoTone,ReloadOutlined } from '@ant-design/icons';
-import Grid from 'antd/lib/card/Grid';
-import moment from 'moment';
+
 
 const ipcrender = require('electron').ipcRenderer;
 
-const mocksource = ()=>{
-  //require('/src/services/mock.json');
-}
 const {Sider,Content} = Layout;
 const { Search } = Input;
 const {Option} =  Select;
@@ -35,33 +32,7 @@ interface Ijsonobject {
     jsonDoc: any;
 }
 
-interface Documento{
-  ID: string,
-  Empresa : string,
-  RfcEmpresa : string,
-  FolioFiscal : string,
-  Folio : string,
-  Correo : string,
-  Fecha : string,
-  Proveedor : string,
-  RfcProveedor: string,
-  Importe: string,
-  CheckRfcProveedor : boolean,
-  CheckCP : boolean,
-  CheckRegFiscal : boolean,
-  CheckRfcCliente: boolean,
-  CheckIvaDesglosado: boolean,
-  CheckUsoCFDI: boolean,
-  CheckMetodoPago : boolean,
-  CheckFormaPago : boolean,
-  CheckTipoCFDI : boolean,
-  CheckUnidad : boolean,
-  CheckDescripcion : boolean,
-  EstatusPago : string,
-  Observaciones : string,
-  IvaDesglosado : string,
-  ProvicionFactura: string
-}
+
 
 // NOTE funcion del componente de busqueda
 
@@ -69,7 +40,7 @@ const LayoutSearch = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dataDocSource,setDataDocSource] = useState([]);
-  const [jsonDoc, setjsonDoc] = useState<Documento>();
+  const [jsonDoc, setjsonDoc] = useState<Cdocumento>();
   const [rangeDates,setRangeDates] = useState([])
   const [loading,setLoading]= useState(false)
 
@@ -87,11 +58,6 @@ const LayoutSearch = () => {
   };
 
   useEffect(() => {
-  /*   if(dataDocSource.length == 0)
-    {
-      shearchDataFromDb();
-    } */
-
    if(jsonDoc !== undefined )
       {
           setIsModalVisible(true);
@@ -106,17 +72,17 @@ const LayoutSearch = () => {
   },[jsonDoc]);
 
   // Documento nuevo actualizado
-   const [Updatejson, setUpdatejson] = useState<Documento>();
+   const [Updatejson, setUpdatejson] = useState<Cdocumento>();
    useEffect(()=>{ },[Updatejson])
 
   // NOTE Operaciones del compontente
 
-  const showModal = (doc:Documento) => {
+  const showModal = (doc:Cdocumento) => {
     setjsonDoc(doc);
   };
 
   const handleOk = () => {
-     ipcrender.invoke('actualizarDocumento',Updatejson).then((res)=>{
+     ipcrender.invoke('c_actualizarDocumento',Updatejson).then((res)=>{
        if(!isNaN(res))
        {
             notification.success({
@@ -151,7 +117,7 @@ const LayoutSearch = () => {
 
   async function shearchDataFromDb (){
     setLoading(true);
-    await ipcrender.invoke('obtenertodos', '10').then((result) => {
+    await ipcrender.invoke('c_obtenertodos', '10').then((result) => {
       if(result.length > 0){
             console.log('getResponse invocation returned: ',result)
             setDataDocSource(result);
@@ -166,7 +132,7 @@ const LayoutSearch = () => {
 
   async function shearchDataByFolio(folio){
     setLoading(true);
-    await ipcrender.invoke('obtenerPorFolio', folio).then((result) => {
+    await ipcrender.invoke('c_obtenerPorFolio', folio).then((result) => {
       if(result.length > 0){
             console.log('getResponse invocation returned: ',result)
             setDataDocSource(result);
@@ -180,21 +146,7 @@ const LayoutSearch = () => {
 
    async function shearchDataByRfc(rfc){
      setLoading(true);
-    await ipcrender.invoke('obtenerPorRfc', rfc).then((result) => {
-      if(result.length > 0){
-            console.log('getResponse invocation returned: ',result)
-            setDataDocSource(result);
-             }
-              else{
-               setDataDocSource([]);
-             }
-      setLoading(false);
-        });
-  }
-
-  async function shearchDataByDates(dates){
-    setLoading(true);
-    await ipcrender.invoke('obtenerPorFecha', dates).then((result) => {
+    await ipcrender.invoke('c_obtenerPorRfc', rfc).then((result) => {
       if(result.length > 0){
             console.log('getResponse invocation returned: ',result)
             setDataDocSource(result);
@@ -235,65 +187,30 @@ const LayoutSearch = () => {
       </>)
     },
     {
-      title: 'Empresa',
-      dataIndex: 'Empresa',
-      key: 'Empresa',
-      width: 150,
+      title: 'UUID',
+      dataIndex: 'c_UUID',
+      key: 'c_UUID',
+      width: 400,
       ellipsis: true,
-    },
-    {
-      title: 'Rfc',
-      dataIndex: 'RfcEmpresa',
-      key: 'RfcEmpresa',
-      width: 150,
-    },
-    {
-      title: 'Folio SAT',
-      dataIndex: 'FolioFiscal',
-      key: 'FolioFiscal',
-      width: 150,
-      ellipsis: true,
-    },
-    {
-      title: 'Folio',
-      dataIndex: 'Folio',
-      key: 'Folio',
-      width: 150,
-    },
-    {
-      title: 'Fecha',
-      dataIndex: 'Fecha',
-      key: 'Fecha',
-      width: 150,
-      render: Fecha => `${Fecha.toLocaleDateString()}`,
-      ellipsis: true,
-    },
-    {
-      title: 'Proveedor',
-      dataIndex: 'Proveedor',
-      key: 'Proveedor',
-      width: 150,
-      ellipsis: true,
-    },
-    {
-      title: 'Rfc proveedor',
-      dataIndex: 'RfcProveedor',
-      key: 'RfcProveedor',
-      width: 150,
-    },
-    {
-      title: 'Importe',
-      dataIndex: 'Importe',
-      key: 'Importe',
-      width: 150,
     },
     {
       title: 'Estatus',
-      dataIndex: 'EstatusPago',
-      key: 'EstatusPago',
-      ellipsis: true,
+      dataIndex: 'c_Complemento',
+      key: 'c_Complemento',
       width: 150,
     },
+    {
+      title: 'Factura',
+      dataIndex: 'c_id_factura',
+      key: 'c_id_factura',
+      width: 150,
+    },
+     {
+      title: 'Observaciones',
+      dataIndex: 'c_Observaciones',
+      key: 'c_Observaciones',
+      width: 300,
+    }
   ];
 
 // NOTE tags del componente
@@ -305,42 +222,15 @@ const LayoutSearch = () => {
              <Button type="primary" onClick={()=>shearchDataFromDb()} shape="circle" icon={<ReloadOutlined />} size={'large'} />
             </Tooltip>
              <span>     </span>
-          <Tooltip placement="bottom" title={'Folio Fiscal'}>
+          <Tooltip placement="bottom" title={'Folio Fiscal del Complemetno'}>
            <Search
            size="small"
-            placeholder="Folio SAT"
+            placeholder="Folio uuid complemento"
               allowClear
               enterButton="Buscar"
               onSearch={onSearchByFolio}
             />
           </Tooltip>
-          <Input.Group>
-           <Tooltip placement="bottom" title={'RFC Proveedor'}>
-             <Search size="small"
-            placeholder="RFC Proveedor"
-              allowClear
-              enterButton="Buscar"
-              onSearch={onSearchByRfc}
-
-            />
-            </Tooltip>
-          </Input.Group>
-          <Row style={{ width: '800px'}} >
-            <Col span={24}>
-            <DatePicker.RangePicker
-            size="small"
-            style={{ width: '70%',borderRadius:0 }}
-            placeholder={['Fecha Inicio','Fecha Final']}
-            format={'YYYY/MM/DD'}
-            onChange={(dt,dts) => {
-            setRangeDates(dts)
-            console.log(rangeDates);
-            }}/>
-            <Button size="small" type="primary" onClick={()=>shearchDataByDates(rangeDates)} style={{ borderRadius:0 }}  >
-              Buscar
-            </Button>
-            </Col>
-          </Row>
          </Space>
       <Table size="small" locale={locale} loading={loading} columns={columns} dataSource = {dataDocSource.length > 0 ? dataDocSource : null}  />
     <Modal

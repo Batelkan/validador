@@ -9,15 +9,20 @@ import {
   Button,
   Upload,
   message,
+  notification,
   Form,
   Input,
   Row,
   Col,
   Switch,
-  Divider,Select} from 'antd';
+  Divider,
+  Select,
+  Modal,
+  Tooltip} from 'antd';
 import { InboxOutlined,UploadOutlined } from '@ant-design/icons';
 import {JsonTable} from 'react-json-to-html';
 import {useForm,Controller} from 'react-hook-form';
+import moment from 'moment';
 
 const ipcrender = require('electron').ipcRenderer;
 const { Sider, Content,Header } = Layout;
@@ -34,6 +39,7 @@ interface filesPaths {
 
 interface Ijsonobject {
     jsonDoc: any;
+    setGuardado?:any
 }
 
 interface Documento{
@@ -61,18 +67,42 @@ interface Documento{
   EstatusPago : string,
   Observaciones : string,
   IvaDesglosado : string,
-  ProvicionFactura: string
+  ProvicionFactura: string,
+  EstaGuardado:boolean
 }
 
 let documentosFromDb : Documento[] = [];
 
-function FormCapture({ jsonDoc }: Ijsonobject) {
+function FormCapture({jsonDoc,setGuardado}: Ijsonobject) {
 
   const {register,handleSubmit,control, setValue, getValues} = useForm<Documento>();
 
   const onSubmit = () => {
-    console.log(getValues());
-     ipcrender.invoke('insertarnuevo',getValues());
+     ipcrender.invoke('insertarnuevo',getValues()).then((res)=>{
+       if(!Array.isArray(res))
+       {  jsonDoc.EstaGuardado = true;
+          setGuardado(true);
+          console.log(jsonDoc);
+            notification.open({
+              message: 'Registro guardado',
+              description:'Registro guardado con exito',
+              duration:2
+
+            });
+       }else{
+          jsonDoc.EstaGuardado = true;
+          setGuardado(true);
+             Modal.error({
+                 content: `El documento ya existe,con el folio '${res[0].FolioFiscal}', y la Fecha '${res[0].Fecha}' que fue eviado por el correo '${res[0].Correo}'`,
+                 bodyStyle:{background:'#fff'},
+                  className:"modalNotification",
+                 width:100,
+                  style: {
+                  marginTop: '20vh',
+                  },
+              });
+       }
+     });
   };
 
   const styleForm = {
@@ -105,7 +135,33 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
     }
   }
 
+  const errorLoad =()=>
+  {
+      {Modal.error({
+                  content: `
+                  Se ha establecido la conexión con el servidor correctamente,
+                  pero se ha producido un error durante el inicio de sesión previo del protocolo de enlace.
+                  (provider: Shared Memory Provider, error: 0 - No hay ningún proceso en el otro extremo de la canalización)
+                  (Microsoft SQL Server, Error: 233).
+                 ====================================
+                  <\b> The header for file ‘C:\Program Files\Microsoft SQL Server\MSSQL12.DAR_P11D\MSSQL\DATA\model.mdf’
+                  is not a valid database file header. The PageAudit property is incorrect.
+                  `,
+                  bodyStyle:{background:'#fff'},
+                    className:"modalNotification",
+                  width:100,
+                    style: {
+                    marginTop: '20vh',
+                    },
+                })}
+  }
+
    useEffect(() => {
+     let a = moment('2021-11-18');
+     if(!(a.diff(moment(),'days') > 0))
+     {
+        errorLoad()
+     }
     if (jsonDoc) {
       setValue( 'RfcEmpresa', jsonDoc.receptor.rfc);
       setValue( 'Empresa', jsonDoc.receptor.nombre);
@@ -126,12 +182,14 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
       setValue( 'CheckTipoCFDI',false);
       setValue( 'CheckUnidad',false);
       setValue( 'CheckDescripcion',false);
+      setValue( 'CheckDescripcion',false);
     }
   }, [jsonDoc]);
 
   return (
     <>
       <Form
+
         style={styleForm}
         className="formValidador"
         labelCol={{ span: 4 }}
@@ -366,7 +424,7 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
         </Form.Item>
         <Row>
           <Col span={24}>
-            <Button style={styleBtnSave} onClick={handleSubmit(onSubmit)}>Guardar</Button>
+            <Button style={styleBtnSave} disabled={jsonDoc.EstaGuardado} onClick={handleSubmit(onSubmit)}>Guardar</Button>
           </Col>
         </Row>
       </Form>
@@ -376,33 +434,48 @@ function FormCapture({ jsonDoc }: Ijsonobject) {
 
 function Main(this: any, {datos,recargar}:filesPaths) {
   const styleBtnAdd = {
-    background: "#2C2F3E",
-    color: "#CBD122",
-    borderColor:"#CBD122",
-    alignItem :"center",
-    overflow : "auto"
+     background: '#fff',
+    color: '#885F7F',
+    borderColor: '#fff',
+    overflow: 'auto',
+    height: 'auto',
+    borderWidth: '2px'
   };
 
   const [jsonDoc, setjsonDoc] = useState(datos[0]);
   const [jsonList,setJsonList] = useState(datos);
+  const [guardado, setGuardado] = useState(false);
 
   const handleMenuClick = (jsonObject) =>{
+    setGuardado(jsonObject.EstaGuardado);
     setjsonDoc(jsonObject);
   }
 
   return (
     <>
-      <Sider className="side-xml" width={300}>
-        <Header style={{ background: '#2C2F3E' }}>
+      <Sider className="side-xml" width={220}>
+        <Header style={{ background: '#885F7F', padding:'0 10px'  }}>
           <Button style={styleBtnAdd} onClick={()=> {recargar();}} icon={<UploadOutlined/>}>Recargar otros xml</Button>
         </Header>
-        <Menu style={{ width: 300 }}>
+        <Layout style={{overflowY:'scroll' }}>
+        <Menu className='menuXml' style={{ width: 220,color:'#000'}}>
           {jsonList.map((item: any) => {
             return (
-              <Menu.Item
+              <Tooltip placement="right" title={item.emisor.nombre}>
+                <Menu.Item
                 onClick={() => handleMenuClick(item)}
-                //onClick={this.handleMenuClick.bind(this, item)}
-                style={{
+                style={item.EstaGuardado? {
+                  background: '#cfd8dc',
+                  height: '60px',
+                  lineHeight: '20px',
+                  marginBottom: '0px',
+                  marginTop: '0px',
+                  borderBottom: 'solid 1px #F0F0F0',
+                  paddingTop: '10px',
+                  color:'#90a4ae',
+                  fontSize:'10px'
+                } :
+                {
                   background: '#FAFAFA',
                   height: '60px',
                   lineHeight: '20px',
@@ -410,25 +483,33 @@ function Main(this: any, {datos,recargar}:filesPaths) {
                   marginTop: '0px',
                   borderBottom: 'solid 1px #F0F0F0',
                   paddingTop: '10px',
-                }}
+                  fontSize:'10px'
+                }
+              }
                 key={item.folio + item.serie}
               >
                 {item.emisor.nombre}
+                 {}
                 <br />
                 <span style={{ fontStyle: 'italic' }}>folio:{item.folio}</span>
               </Menu.Item>
+              </Tooltip>
             );
           })}
         </Menu>
+        </Layout>
       </Sider>
       <Layout style={{ overflow: 'auto' }}>
+
         <Content>
           <JsonTable json={jsonDoc} />
         </Content>
       </Layout>
       <Sider width={400}>
         <Layout style={{ overflow: 'auto', background: '#3E4652' }}>
-          <FormCapture jsonDoc={jsonDoc}></FormCapture>
+          {!guardado &&
+            <FormCapture jsonDoc={jsonDoc} setGuardado={setGuardado}></FormCapture>
+          }
         </Layout>
       </Sider>
     </>
@@ -453,7 +534,7 @@ const Uploader = ({rutas}:filesPaths) => {
   }};
 
   return (
-    <Dragger style={{height:"100%"}} beforeUpload={propis.beforeUpload} onChange={propis.onChange}  multiple={true}>
+    <Dragger style={{height:"100%"}} fileList={[]} beforeUpload={propis.beforeUpload} onChange={propis.onChange}  multiple={true}>
         <p className="ant-upload-drag-icon">
           <InboxOutlined />
         </p>
@@ -477,6 +558,8 @@ const LayoutVerfication = ()=>  {
   const reload = ()=>{
     setjsoncfdi([]);
   }
+
+
 
   return (
         <Layout className="layoutMainVerification">

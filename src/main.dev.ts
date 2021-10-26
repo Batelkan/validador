@@ -12,7 +12,8 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell,webFrame } from 'electron';
+import unhandled from 'electron-unhandled';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -20,6 +21,12 @@ import MenuBuilder from './menu';
 const ipcmain = require('electron').ipcMain;
 const fs = require('fs');
 const CfdiToJson = require('cfdi-to-json');
+
+unhandled({
+
+	showDialog: true
+});
+
 
 export default class AppUpdater {
   constructor() {
@@ -84,7 +91,10 @@ const createWindow = async () => {
       nodeIntegration: true,
     },
   });
-
+  mainWindow.webContents.setZoomFactor(0.6);
+  mainWindow.webContents
+    .setVisualZoomLevelLimits(0.2, 1)
+    .catch((err) => console.log(err));
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   // @TODO: Use 'ready-to-show' event
@@ -98,7 +108,8 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
       mainWindow.focus();
-       require('./services/sqlservice');
+      require('./services/sqlservice');
+      require('./services/sqlserviceComplementos');
     }
   });
 
@@ -143,7 +154,9 @@ app.on('activate', () => {
 ipcmain.on('loadXmlMainProcess', (event :any, data:[]) => {
   const result = data.map((val:string) =>
         {
-            return CfdiToJson.parse({ path: val });
+          const tempjson = CfdiToJson.parse({ path: val });
+          tempjson.EstaGuardado = false;
+          return tempjson;
         });
   if (mainWindow != null)
   {
@@ -158,6 +171,36 @@ ipcmain.on('reloadXmlMainProcess', (event: any, data: []) => {
 
   if (mainWindow != null) {
     mainWindow.webContents.send('loadSingleCfdi', result);
+    result = [];
+  }
+});
+
+ipcmain.on('cloadXmlMainProcess', (event :any, data:[]) => {
+    try {
+          const result = data.map((val:string) =>
+            {
+              const tempjson = CfdiToJson.parse({ path: val });
+              tempjson.EstaGuardado = false;
+              return tempjson;
+            });
+
+          if (mainWindow != null)
+            {
+              mainWindow.webContents.send('cloadJsonCfdi', result);
+            }
+        }
+      catch (error:any) {
+            unhandled.logError(new Error(error), {title: 'Erro en el archivo cfdi'});
+          }
+});
+
+ipcmain.on('creloadXmlMainProcess', (event: any, data: []) => {
+  let result = data.map((val: string) => {
+    return CfdiToJson.parse({ path: val });
+  });
+
+  if (mainWindow != null) {
+    mainWindow.webContents.send('cloadSingleCfdi', result);
     result = [];
   }
 });

@@ -4,12 +4,7 @@
  */
 @import '~antd/dist/antd.css';
 body {
-  background: linear-gradient(
-    200.96deg,
-    #fedc2a -29.09%,
-    #dd5789 51.77%,
-    #7a2c9e 129.35%
-  );
+  background: white;
   font-family: sans-serif;
   overflow-y: hidden;
   display: flex;
@@ -24,6 +19,40 @@ body {
 
 .ant-layout {
   height: inherit;
+}
+
+.ant-layout-sider {
+  background: #465a65;
+}
+
+.ant-menu-item-group-title {
+  color: #fff;
+}
+
+.ant-menu-item {
+  color: #fff;
+}
+
+.ant-menu-vertical {
+  border-right: 0px;
+}
+
+.menuXml .ant-menu-item {
+  color: #465a65;
+}
+
+.ant-menu-item.ant-menu-item-selected {
+  color: #465a65;
+}
+
+.ant-menu {
+  color: '#fff';
+  background: #465a65;
+}
+
+.ant-select {
+  background: #fff;
+  color: #fff;
 }
 
 .side-xml {
@@ -41,10 +70,6 @@ body {
 .ant-input {
   background-color: #505967;
   border: 1px solid #49525f;
-  color: white;
-}
-
-.ant-select {
   color: white;
 }
 
@@ -117,4 +142,21 @@ body {
 .ant-input-affix-wrapper {
   background-color: #505967;
   border: 1px solid #49525f;
+}
+
+.modalNotification .ant-modal-content {
+  min-width: 400px;
+  background-color: #fff;
+}
+
+.ant-list-bordered {
+  border: 2px solid #465a65;
+}
+
+.ant-list-split .ant-list-item {
+  border-bottom: 2px solid #465a65;
+}
+
+.ant-list-item {
+  color: whitesmoke;
 }

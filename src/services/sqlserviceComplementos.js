@@ -2,8 +2,7 @@
 const Connection = require("tedious").Connection;
 const Request = require("tedious").Request;
 const {ipcMain} =  require('electron');
-const{SendIt} =  require('./mail');
-
+import unhandled from 'electron-unhandled';
 const config = {
         server:'192.168.10.4',
         authentication:{
@@ -15,15 +14,11 @@ const config = {
         },
           options: {
             database: 'ValidacionesDB',
-            // These two settings are really important to make successfull connection
             encrypt: false,
             trustServerCertificate: false,
-            // This will allow you to access the rows returned.
-            // See 'doneInProc' event below
             rowCollectionOnDone: true
         }
     };
-
 
 const connectToServer = () =>{
     return new Promise((resolve,reject) => {
@@ -96,7 +91,7 @@ const readFromDb = (connection, sqlQuery)=> {
 const  getDocuments = () =>{
     return new Promise((resolve,reject)=>{
         connectToServer().then(connection => {
-            const sqlStr = 'SELECT TOP(20) * FROM Validacion.Facturas order by Fecha desc';
+            const sqlStr = 'SELECT TOP(100) * FROM Validacion.Complemento order by c_id desc';
             return readFromDb(connection,sqlStr);
         })
         .then(documentos => resolve(documentos))
@@ -105,6 +100,17 @@ const  getDocuments = () =>{
 };
 
 const  getDocumentsByFolio = (folio) =>{
+    return new Promise((resolve,reject)=>{
+        connectToServer().then(connection => {
+            const sqlStr = `SELECT * FROM Validacion.Complemento WHERE c_UUID = '${folio}'  ORDER BY c_id desc`;
+            return readFromDb(connection,sqlStr);
+        })
+        .then(documentos => resolve(documentos))
+        .catch(err => reject(err));
+    });
+};
+
+const  getDocumentFacByFolio = (folio) =>{
     return new Promise((resolve,reject)=>{
         connectToServer().then(connection => {
             const sqlStr = `SELECT * FROM Validacion.Facturas WHERE FolioFiscal = '${folio}'  ORDER BY ID desc`;
@@ -118,7 +124,7 @@ const  getDocumentsByFolio = (folio) =>{
 const  getDocumentsByRfc = (rfc) =>{
     return new Promise((resolve,reject)=>{
         connectToServer().then(connection => {
-            const sqlStr = `SELECT * FROM Validacion.Facturas WHERE RfcProveedor = '${rfc}'  ORDER BY ID desc`;
+            const sqlStr = `SELECT * FROM Validacion.Complemento WHERE c_RfcBeneficiadoBanco = '${rfc}'  ORDER BY c_id desc`;
             return readFromDb(connection,sqlStr);
         })
         .then(documentos => resolve(documentos))
@@ -129,18 +135,7 @@ const  getDocumentsByRfc = (rfc) =>{
 const  getDocumentsByDates= (dates) =>{
     return new Promise((resolve,reject)=>{
         connectToServer().then(connection => {
-            const sqlStr = `SELECT * FROM Validacion.Facturas WHERE Fecha BETWEEN '${dates[0]}' AND '${dates[1]}' ORDER BY Fecha desc`;
-            return readFromDb(connection,sqlStr);
-        })
-        .then(documentos => resolve(documentos))
-        .catch(err => reject(err));
-    });
-};
-
-const  getMailConfig = () =>{
-    return new Promise((resolve,reject)=>{
-        connectToServer().then(connection => {
-            const sqlStr = `SELECT value FROM dbo.config where type = 'correo'`;
+            const sqlStr = `SELECT * FROM Validacion.Complemento WHERE c_FechaPago BETWEEN '${dates[0]}' AND '${dates[1]}' ORDER BY Fecha desc`;
             return readFromDb(connection,sqlStr);
         })
         .then(documentos => resolve(documentos))
@@ -193,32 +188,32 @@ const beginTransaction = (connection)=>{
 // Insertar factura nueva
 //---------------------------------------------------------------------------------------
 const insertNewTransaccion = (connection,document) => {
+  console.log(document);
    return new Promise((resolve,reject)=> {
-      const sql = `INSERT INTO Validacion.Facturas VALUES(
-      '${document.Empresa}',
-      '${document.RfcEmpresa}',
-      '${document.FolioFiscal}',
-      '${document.Folio}',
-      '${document.Correo}',
-      '${document.Fecha}',
-      '${document.Proveedor}',
-      '${document.RfcProveedor}',
-      '${document.Importe}',
-      '${document.CheckRfcProveedor}',
-      '${document.CheckCP}',
-      '${document.CheckRegFiscal}',
-      '${document.CheckRfcCliente}',
-      '${document.CheckUnidad}',
-      '${document.CheckDescripcion}',
-      '${document.CheckIvaDesglosado}',
-      '${document.CheckUsoCFDI}',
-      '${document.CheckMetodoPago}',
-      '${document.CheckFormaPago}',
-      '${document.CheckTipoCFDI}',
-      '${document.EstatusPago}',
-      '${document.Observaciones}',
-      '${document.IvaDesglosado}',
-      '${document.ProvicionFactura}'
+      const sql = `INSERT INTO Validacion.Complemento VALUES(
+      '${document.c_id_factura}',
+      '${document.c_FechaPago}',
+      '${document.c_Moneda}',
+      '${document.c_NumOperacion}',
+      '${document.c_RfcCtaOrdenanteBanco}',
+      '${document.c_NomBancoOrdExt}',
+      '${document.c_CtaOrdenante}',
+      '${document.c_RfcCtaBeneficiadoBanco}',
+      '${document.c_CtaBeneficiado}',
+      '${document.c_TipoCadPago}',
+      '${document.c_NodoDelDoc}',
+      '${document.c_IdDoc}',
+      '${document.c_serie}',
+      '${document.c_folio}',
+      '${document.c_MetodoPagoDR}',
+      '${document.c_NoParcialidad}',
+      '${document.c_ImporteSA}',
+      '${document.c_ImportePago}',
+      '${document.c_ImporteSI}',
+      '${document.c_Observaciones}',
+      '${document.c_Complemento}',
+      '${document.c_Monto}',
+      '${document.c_UUID}'
       )`;
        const request = new Request(sql, (err,rowCount) => {
         if (err) {
@@ -237,32 +232,32 @@ const insertNewTransaccion = (connection,document) => {
 //---------------------------------------------------------------------------------------
 const updateTransaccion = (connection,document) => {
    return new Promise((resolve,reject)=> {
-      const sql = `UPDATE Validacion.Facturas
+      const sql = `UPDATE Validacion.Complemento
       SET
-          Empresa = '${document.Empresa}',
-          RfcEmpresa =  '${document.RfcEmpresa}',
-          FolioFiscal = '${document.FolioFiscal}',
-          Folio = '${document.Folio}',
-          Correo = '${document.Correo}',
-          Proveedor = '${document.Proveedor}',
-          RfcProveedor = '${document.RfcProveedor}',
-          Importe = '${document.Importe}',
-          CheckRfcProveedor = '${document.CheckRfcProveedor}',
-          CheckCP = '${document.CheckCP}',
-          CheckRegFiscal = '${document.CheckRegFiscal}',
-          CheckRfcCliente = '${document.CheckRfcCliente}',
-          CheckUnidad = '${document.CheckUnidad}',
-          CheckDescripcion = '${document.CheckDescripcion}',
-          CheckIvaDesglosado = '${document.CheckIvaDesglosado}',
-          CheckUsoCFDI = '${document.CheckUsoCFDI}',
-          CheckMetodoPago = '${document.CheckMetodoPago}',
-          CheckFormaPago = '${document.CheckFormaPago}',
-          CheckTipoCFDI = '${document.CheckTipoCFDI}',
-          EstatusPago = '${document.EstatusPago}',
-          Observaciones = '${document.Observaciones}',
-          IvaDesglosado = '${document.IvaDesglosado}',
-          ProvicionFactura = '${document.ProvicionFactura}'
-      WHERE FolioFiscal = '${document.FolioFiscal}'
+     c_id_factura = '${document.c_id_factura}',
+     c_FechaPago = '${document.c_FechaPago}',
+     c_Moneda = '${document.c_Moneda}',
+     c_NumOperacion = '${document.c_NumOperacion}',
+     c_RfcCtaOrdenanteBanco = '${document.c_RfcCtaOrdenanteBanco}',
+     c_NomBancoOrdExt = '${document.c_NomBancoOrdExt}',
+     c_CtaOrdenante = '${document.c_CtaOrdenante}',
+     c_RfcCtaBeneficiadoBanco = '${document.c_RfcCtaBeneficiadoBanco}',
+     c_CtaBeneficiado = '${document.c_CtaBeneficiado}',
+     c_TipoCadPago = '${document.c_TipoCadPago}',
+     c_NodoDelDoc = '${document.c_NodoDelDoc}',
+     c_IdDoc = '${document.c_IdDoc}',
+     c_serie = '${document.c_serie}',
+     c_folio = '${document.c_folio}',
+     c_MetodoPagoDR = '${document.c_MetodoPagoDR}',
+     c_NoParcialidad = '${document.c_NoParcialidad}',
+     c_ImporteSA = '${document.c_ImporteSA}',
+     c_ImportePago = '${document.c_ImportePago}',
+     c_ImporteSI = '${document.c_ImporteSI}',
+     c_Observaciones = '${document.c_Observaciones}',
+     c_Complemento = '${document.c_Complemento}',
+     c_Monto = '${document.c_Monto}',
+     c_UUID = '${document.c_UUID}'
+      WHERE c_UUID = '${document.c_UUID}'
       `;
        const request = new Request(sql, (err,rowCount) => {
         if (err) {
@@ -278,55 +273,57 @@ const updateTransaccion = (connection,document) => {
    })
 }
 
-ipcMain.handle('obtenertodos',async (event,arg)=> {
+ipcMain.handle('c_obtenertodos',async (event,arg)=> {
   let data =  await getDocuments();
   return  data;
 });
 
-ipcMain.handle('obtenerPorFolio',async (event,arg)=> {
+ipcMain.handle('c_obtenerPorFolio',async (event,arg)=> {
   let data =  await getDocumentsByFolio(arg);
   return  data;
 });
 
-ipcMain.handle('obtenerPorRfc',async (event,arg)=> {
+ipcMain.handle('c_obtenerPorRfc',async (event,arg)=> {
   let data =  await getDocumentsByRfc(arg);
   return  data;
 });
 
-ipcMain.handle('obtenerPorFecha',async (event,arg)=> {
+ipcMain.handle('c_obtenerPorFecha',async (event,arg)=> {
   let data =  await getDocumentsByDates(arg);
   return  data;
 });
 
-ipcMain.handle('insertarnuevo', async (event,data) => {
-  let dataExist = await getDocumentsByFolio(data.FolioFiscal);
-  if(dataExist.length > 0)
-   {return dataExist}
-   else
-   {
-  let result= connectToServer().then(connection => insertNewTransaccion(connection,data)).then((val)=>{console.log(val);return val}).catch((err)=> {console.log(err); return err;})
-  let enviarCorreo = await getMailConfig();
-   console.log(data.Correo);
-  if(data.Correo !== "" && enviarCorreo[0].value == 'si')
-  {
-    console.log('Paso a Enviar');
-    try {
-     let mail = {
-       Correo : data.Correo,
-       Proveedor : data.Proveedor,
-       Folio : data.Folio
-        };
-      SendIt(mail);}
-    catch (error) {
-        console.log(error);
-      }
-  }
-
-   return result;
-  }
+ipcMain.handle('c_insertarnuevo', async (event,data) => {
+  try {
+        let dataExist = await getDocumentsByFolio(data.c_UUID);
+        if(dataExist.length > 0)
+        {return dataExist}
+        else
+        {  let result;
+            for (var i = 0; i < data.docsRelacionados.length; i++) {
+                let facExist = await getDocumentFacByFolio(data.docsRelacionados[i].idDocumento);
+                if(facExist.length > 0)
+                { data.c_id_factura = facExist[0].ID;
+                  let tmpresult= connectToServer().then(connection => insertNewTransaccion(connection,data)).then((val)=>{console.log(val);return val}).catch((err)=> {console.log(err); return err;})
+                  if(!Array.isArray(tmpresult))
+                    {
+                      result += tmpresult;
+                    }
+                  else
+                  {
+                    result = tmpresult;
+                    break;
+                  }
+              }
+              }
+          return result;}
+        }
+  catch (error) {
+          unhandled.logError(new Error(error), {title: 'Error'});
+        }
 });
 
-ipcMain.handle('actualizarDocumento', async (event,data) => {let result= connectToServer().then(connection => updateTransaccion(connection,data)).then((val)=>{console.log(val);return val}).catch((err)=> {console.log(err); return err;})
+ipcMain.handle('c_actualizarDocumento', async (event,data) => {let result= connectToServer().then(connection => updateTransaccion(connection,data)).then((val)=>{console.log(val);return val}).catch((err)=> {console.log(err); return err;})
    return result;
 });
 updateTransaccion
